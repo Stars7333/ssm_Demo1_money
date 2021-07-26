@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+                http://www.springframework.org/schema/aop
+                http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+                http://www.springframework.org/schema/tx
+                http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
+                http://www.springframework.org/schema/context
+                http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <!--com.yuntu.service   com.yuntu.mapper-->
+    <!--使用Spring扫描器 扫描包下所有的类 加入注解驱动-->
+    <!--若扫描到有@Component、@Controller、@Service等注解的类，则被这些类注册为bean-->
+    <context:component-scan base-package="com.yuntu.service,com.yuntu.mapper"/>
+
+    <!-- 读取数据库配置文件 -->
+    <context:property-placeholder location="classpath:database.properties"/>
+
+    <!--数据源-->
+    <bean id="dataSource" class="org.apache.commons.dbcp2.BasicDataSource">
+        <property name="username" value="${user}"></property>
+        <property name="url" value="${url}"/>
+        <property name="password" value="${password}"/>
+        <property name="driverClassName" value="${driver}"/>
+
+        <property name="minIdle" value="${minIdle}"/>
+
+        <property name="maxIdle" value="${maxIdle}"/>
+
+        <property name="maxTotal" value="${maxActive}"/>
+
+        <property name="initialSize" value="${initialSize}"/>
+
+        <property name="maxWaitMillis" value="${maxWait}"/>
+
+        <property name="removeAbandonedTimeout" value="${removeAbandonedTimeout}"/>
+
+        <property name="removeAbandonedOnBorrow" value="${removeAbandoned}"/>
+        <property name="removeAbandonedOnMaintenance" value="${removeAbandoned}"/>
+        <!-- 心跳包 -->
+        <!--定义开启evict的数据校验，循环校验-->
+        <property name="testWhileIdle" value="true"/>
+        <!--拿到连接是否开启校验-->
+        <property name="testOnBorrow" value="false"/>
+        <!--返回连接是否开启校验-->
+        <property name="testOnReturn" value="false"/>
+        <!--定义校验所使用的sql语句-->
+        <property name="validationQuery" value="select 1"/>
+        <!--第一个的时间间隔，大于0时视为启动状态  单位：毫秒-->
+        <property name="timeBetweenEvictionRunsMillis" value="60000"/>
+        <!--定义每次校验的连接数-->
+        <property name="numTestsPerEvictionRun" value="${maxActive}"/>
+    </bean>
+<!--    <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">-->
+<!--        <property name="driverClassName" value="${driver}"/>-->
+<!--        <property name="url" value="${url}"/>-->
+<!--        <property name="username" value="${user}"/>-->
+<!--        <property name="password" value="${password}"/>-->
+<!--        &lt;!&ndash;        初始化连接个数&ndash;&gt;-->
+<!--        <property name="initialSize" value="${initialSize}"/>-->
+<!--        &lt;!&ndash;        允许同时最大的连接数&ndash;&gt;-->
+<!--        <property name="maxActive" value="${maxActive}"/>-->
+<!--        &lt;!&ndash;        允许最大空闲的连接数&ndash;&gt;-->
+<!--        <property name="maxIdle" value="${maxIdle}"/>-->
+<!--        &lt;!&ndash;        允许最小空闲的连接数&ndash;&gt;-->
+<!--        <property name="minIdle" value="${minIdle}"/>-->
+<!--        &lt;!&ndash;        最大等待连接的时间,单位毫秒&ndash;&gt;-->
+<!--        <property name="maxWait" value="${maxWait}"/>-->
+<!--        &lt;!&ndash;        配置超出时间&ndash;&gt;-->
+<!--        <property name="removeAbandonedTimeout" value="${removeAbandonedTimeout}"/>-->
+<!--        &lt;!&ndash;        是否开始使用无用的连接回收机制&ndash;&gt;-->
+<!--        <property name="removeAbandoned" value="${removeAbandoned}"/>-->
+<!--        &lt;!&ndash;sql心跳包&ndash;&gt;-->
+<!--        &lt;!&ndash;定义开启evict的数据校验，循环校验&ndash;&gt;-->
+<!--        <property name="testWhileIdle" value="true"/>-->
+<!--        &lt;!&ndash;拿到连接是否开启校验&ndash;&gt;-->
+<!--        <property name="testOnBorrow" value="false"/>-->
+<!--        &lt;!&ndash;返回连接是否开启校验&ndash;&gt;-->
+<!--        <property name="testOnReturn" value="false"/>-->
+<!--        &lt;!&ndash;定义校验所使用的sql语句&ndash;&gt;-->
+<!--        <property name="validationQuery" value="select 1"/>-->
+<!--        &lt;!&ndash;第一个的时间间隔，大于0时视为启动状态  单位：毫秒&ndash;&gt;-->
+<!--        <property name="timeBetweenEvictionRunsMillis" value="60000"/>-->
+<!--        &lt;!&ndash;定义每次校验的连接数&ndash;&gt;-->
+<!--        <property name="numTestsPerEvictionRun" value="${maxActive}"/>-->
+
+<!--    </bean>-->
+
+
+
+    <!--事务管理器-->
+    <bean id="TransactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
+    <!--AOP事务处理-->
+    <!--AOP事务开启-->
+    <aop:aspectj-autoproxy/>
+    <aop:config proxy-target-class="true">
+        <aop:pointcut id="transService" expression="execution(* *com.yuntu.service..*(..))"/><!--标识 ; 切入点方法-->
+        <aop:advisor advice-ref="txAdvice" pointcut-ref="transService"/>
+    </aop:config>
+    <!--aop事务管理器的连接 事务机制 -->
+    <tx:advice id="txAdvice" transaction-manager="TransactionManager">
+        <tx:attributes><!--事务机制-->
+            <tx:method name="yuntu*" propagation="REQUIRED" rollback-for="Excetion"/>
+        </tx:attributes>
+    </tx:advice><!--AOP事务结束-->
+
+    <!--sqlsessionFactoryBean-->
+    <bean id="SqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="configLocation" value="classpath:mybatis.config.xml"/>
+    </bean>
+
+    <!--MapperScannerConfigurer 自动扫描器-->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.yuntu.mapper"/>
+    </bean>
+</beans>

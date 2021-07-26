@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yuntu.mapper.Money.MoneyMapper">
+
+    <select id="getCount" resultType="int">
+    select count(1) from Money
+    </select>
+
+    <select id="getLists" resultType="Money">
+        select * from Money
+        order by m_Time desc limit #{index},#{size}
+    </select>
+    <select id="getMoney" resultType="Money" parameterType="int">
+        select * from Money  where m_id=#{m_id}
+    </select>
+
+<!--    <select id="checkName" parameterType="String" resultType="user">-->
+<!--        select * from user where gamename=#{name}-->
+<!--    </select>-->
+
+<!--    <select id="getUser" parameterType="int" resultType="user">-->
+<!--        select * from user where gameid = #{id}-->
+<!--    </select>-->
+
+    <insert id="add" parameterType="Money">/*添加---除了余额*/
+        insert into Money(m_text, m_name,m_Time,m_Debit, m_img, m_balance,m_i_id)
+         VALUES
+        (#{m_text}, #{m_name},#{m_Time},#{m_Debit}, #{m_img}, #{m_balance},#{m_i_id})
+    </insert>
+
+    <delete id="Del" parameterType="int">
+        delete  from Money  where m_id=#{m_id}
+    </delete>
+    <update id="Upd" parameterType="Money">
+        update Money
+        <set>
+            <if test="m_Time != null">
+                m_Time = #{m_Time},
+            </if>
+            <if test="m_text != null and m_text != ''">
+                m_text = #{m_text},
+            </if>
+            <if test="m_Debit != null">
+                m_Debit = #{m_Debit},
+            </if>
+            <if test="m_name != null and m_name != ''">
+                m_name = #{m_name},
+            </if>
+            <if test="m_Debit != 0">
+                m_Debit = #{m_Debit},
+            </if>
+            <if test="m_img != null and m_img != ''">
+                m_img = #{m_img},
+            </if>
+            <if test="m_balance != 0">
+                m_balance = #{m_balance},
+            </if>
+        </set>
+        where m_id=#{m_id}
+    </update>
+</mapper>

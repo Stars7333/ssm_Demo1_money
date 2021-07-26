@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    <!-- 延迟加载的全局开关。当开启时，所有关联对象都会延迟加载。默认 false  -->
+    <!--懒加载-->
+    <settings>
+        <setting name="lazyLoadingEnabled" value="true"/>
+    </settings>
+    <!--别名注册-->
+    <typeAliases>
+        <package name="com.yuntu.pojo"/>
+    </typeAliases>
+</configuration>

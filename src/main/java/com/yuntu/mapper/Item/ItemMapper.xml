@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yuntu.mapper.Item.ItemMapper">
+
+
+    <select id="getCount" resultType="int">
+        select count(1) from user u INNER JOIN item i ON u.u_id=i.i_p_name
+<!--        <trim prefix="where" prefixOverrides="and | or">-->
+<!--            <if test="u_id==1">-->
+
+<!--            </if>-->
+<!--            <if test="u_id==2">-->
+<!--                 u.u_id=#{u_id} or u.u_id=3-->
+<!--            </if>-->
+<!--            <if test="u_id==3">-->
+<!--                 u.u_id=#{u_id}-->
+<!--            </if>-->
+<!--        </trim>-->
+    </select>
+    <select id="getLists" resultType="Item">
+        select i.*,u.u_name,u.u_degree,u.u_professional,u.u_phone1,u.u_phone2 from user u INNER JOIN item i ON u.u_id=i.i_p_name
+        <trim prefix="where" prefixOverrides="and | or">
+            <if test="u_status==1">
+
+            </if>
+            <if test="u_status==2">
+              i.i_p_name =(select u_id from user where u_status=#{u_status} and u_id=#{u_id}) or i.i_flag=3
+            </if>
+            <if test="u_status==3">
+                i.i_p_name =(select u_id from user where u_status=#{u_status} and u_id=#{u_id})
+            </if>
+        </trim>
+        order by i.i_EndTime,i.i_GoTime desc limit #{index},#{size}
+    </select>
+    <select id="getItem" resultType="item" parameterType="int">
+        select * from user u INNER JOIN item i ON u.u_id=i.i_p_name where i.i_id=#{i_id}
+    </select>
+    <select id="getAllName" resultType="item">
+        select i_name,i_id from  item
+    </select>
+    <update id="UpdEvolve">
+        update item set i_evolve = #{i_evolve} where i_id=#{i_id}
+    </update>
+
+<!--    <select id="checkName" parameterType="String" resultType="user">-->
+<!--        select * from user where gamename=#{name}-->
+<!--    </select>-->
+
+<!--    <select id="getUser" parameterType="int" resultType="user">-->
+<!--        select * from user where gameid = #{id}-->
+<!--    </select>-->
+
+    <insert id="add" parameterType="item">/*添加---除了余额*/
+        insert into item(i_name, i_sort,i_year, i_R_unit, i_A_unit,i_p_name,i_GoTime,i_cycle,i_type,i_text,i_budget,i_evolve,i_flag)
+         VALUES
+        (#{i_name}, #{i_sort},#{i_year}, #{i_R_unit}, #{i_A_unit},#{i_p_name},#{i_GoTime},#{i_cycle},#{i_type},#{i_text},#{i_budget},
+         #{i_evolve},#{i_flag})
+    </insert>
+
+    <delete id="Del" parameterType="int">
+        delete  from item  where i_id=#{i_id}
+    </delete>
+    <update id="Upd" parameterType="item">
+        update item
+        <set>
+            <if test="i_name != null and i_name != ''">
+                i_name = #{i_name},
+            </if>
+            <if test="i_sort != null and i_sort != ''">
+                i_sort = #{i_sort},
+            </if>
+            <if test="i_year != null">
+                i_year = #{i_year},
+            </if>
+            <if test="i_R_unit != null and i_R_unit != ''">
+                i_R_unit = #{i_R_unit},
+            </if>
+            <if test="i_A_unit != null and i_A_unit != ''">
+                i_A_unit = #{i_A_unit},
+            </if>
+            <if test="i_p_name != 0">
+                i_p_name = #{i_p_name},
+            </if>
+            <if test="i_EndTime != null">
+                i_EndTime = #{i_EndTime},
+            </if>
+            <if test="i_cycle != 0">
+                i_cycle = #{i_cycle},
+            </if>
+            <if test="i_type != null and i_type!='' ">
+                i_type = #{i_type},
+            </if>
+            <if test="i_text != null and i_text!='' ">
+                i_text = #{i_text},
+            </if>
+            <if test="i_balance != 0">
+                i_balance = #{i_balance},
+            </if>
+            <if test="i_budget != 0">
+                i_budget = #{i_budget},
+            </if>
+            <if test="i_evolve != 0">
+                i_evolve = #{i_evolve},
+            </if>
+            <if test="i_flag != 0">
+                i_flag = #{i_flag},
+            </if>
+        </set>
+        where i_id=#{i_id}
+    </update>
+</mapper>
